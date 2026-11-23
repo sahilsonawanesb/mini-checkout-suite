@@ -1,0 +1,24 @@
+{
+  "name": "mini-checkout-suite",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sahilsonawanesb/mini-checkout-suite.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sahilsonawanesb/mini-checkout-suite/issues"
+  },
+  "homepage": "https://github.com/sahilsonawanesb/mini-checkout-suite#readme",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "http-server": "^14.1.1"
+  }
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mini Checkout</title>
+</head>
+<body>
+  <h1>Mini Checkout</h1>
+
+  <section id="shop">
+    <h2>Products</h2>
+    <p>Blue Notebook $12.50
+      <button id="add-notebook" data-testid="add-notebook" type="button">Add to cart</button></p>
+    <p>Steel Bottle $8.99
+      <button id="add-bottle" data-testid="add-bottle" type="button">Add to cart</button></p>
+
+    <h2>Your cart</h2>
+    <p id="empty-cart" data-testid="empty-cart">Your cart is empty.</p>
+    <div id="cart-items"></div>
+
+    <p>Order total: <strong id="order-total" data-testid="order-total">$0.00</strong></p>
+
+    <label for="name">Full name (required)</label>
+    <input id="name" data-testid="name" type="text">
+    <p id="error" data-testid="error" role="alert" hidden></p>
+    <button id="place-order" data-testid="place-order" type="button">Place Order</button>
+  </section>
+
+  <section id="confirmation" data-testid="confirmation" hidden></section>
+
+  <script>
+    const PRODUCTS = {
+  notebook: { name: 'Blue Notebook', cents: 1250 },
+  bottle:   { name: 'Steel Bottle',  cents: 899 }
+};
+const cart = {};   // example: { notebook: 2, bottle: 1 }
+
+const money = cents => '$' + (cents / 100).toFixed(2);
+
+function render() {
+  const container = document.getElementById('cart-items');
+  container.innerHTML = '';
+  let total = 0;
+
+  Object.keys(cart).forEach(id => {
+    const line = PRODUCTS[id].cents * cart[id];
+    total += line;
+    const row = document.createElement('div');
+    row.innerHTML =
+      `${PRODUCTS[id].name} qty
+       <input type="number" min="1" value="${cart[id]}" data-testid="qty-${id}">
+       = <span data-testid="line-${id}">${money(line)}</span>
+       <button type="button" data-testid="remove-${id}">Remove</button>`;
+    container.appendChild(row);
+    row.querySelector('input').addEventListener('input', e => {
+      const n = parseInt(e.target.value, 10);
+      if (n >= 1) { cart[id] = Math.min(n, 99); render(); }
+    });
+    row.querySelector('button').addEventListener('click', () => {
+      delete cart[id]; render();
+    });
+  });
+
+  document.getElementById('empty-cart').hidden = Object.keys(cart).length > 0;
+  document.getElementById('order-total').textContent = money(total);
+}
+
+function addItem(id) { cart[id] = (cart[id] || 0) + 1; render(); }
+
+document.getElementById('add-notebook').addEventListener('click', () => addItem('notebook'));
+document.getElementById('add-bottle').addEventListener('click', () => addItem('bottle'));
+render();
+
+
+// validation and order placement
+let orderPlaced = false;
+
+function showError(msg) {
+  const e = document.getElementById('error');
+  e.textContent = msg;
+  e.hidden = false;
+}
+
+function placeOrder() {
+  if (orderPlaced) return;                                  // ignore second click
+
+  if (Object.keys(cart).length === 0) {
+    showError('Your cart is empty. Add at least one item before placing an order.');
+    return;
+  }
+  const name = document.getElementById('name').value.trim();
+  if (!name) {
+    showError('Please enter your full name.');
+    return;
+  }
+
+  orderPlaced = true;                                       // lock immediately
+  document.getElementById('place-order').disabled = true;
+
+  const total = Object.keys(cart).reduce((s, id) => s + PRODUCTS[id].cents * cart[id], 0);
+  const ref = 'ORD-' + Date.now().toString(36).toUpperCase();
+  const c = document.getElementById('confirmation');
+  c.innerHTML = `<h2>Order confirmed</h2>
+    <p>Thank you, <span data-testid="conf-name"></span>.</p>
+    <p>Reference: <strong data-testid="conf-ref">${ref}</strong></p>
+    <p>Total: <strong data-testid="conf-total">${money(total)}</strong></p>`;
+  c.querySelector('[data-testid="conf-name"]').textContent = name;  // not innerHTML: safe against HTML injection
+  document.getElementById('shop').hidden = true;
+  c.hidden = false;
+}
+
+document.getElementById('place-order').addEventListener('click', placeOrder);
+  </script>
+</body>
+</html>
