@@ -2,9 +2,11 @@
   "name": "mini-checkout-suite",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+ "scripts": {
+  "test": "playwright test",
+  "test:headed": "playwright test --headed",
+  "report": "playwright show-report"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sahilsonawanesb/mini-checkout-suite.git"
